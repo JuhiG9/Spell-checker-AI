@@ -1,0 +1,29 @@
+import nltk
+from nltk.corpus import wordnet
+from nltk.metrics import edit_distance
+
+# Download the WordNet dataset
+nltk.download('wordnet')
+
+# Function to find the word with the highest similarity to the misspelled word
+def suggest_word(misspelled_word):
+    synsets = wordnet.synsets(misspelled_word)
+    if not synsets:
+        return "No suggestions found."
+
+    # Calculate similarity scores using Wu-Palmer Similarity metric
+    similarity_scores = {}
+    for synset in synsets:
+        for lemma in synset.lemmas():
+            suggestion = lemma.name()
+            similarity_scores[suggestion] = synset.wup_similarity(wordnet.synset(synset.name())) or 0
+
+    # Sort suggestions by similarity score in descending order
+    sorted_suggestions = sorted(similarity_scores.items(), key=lambda x: x[1], reverse=True)
+
+    return sorted_suggestions[0][0]
+
+# Example usage
+misspelled_word = "engeneer"
+suggested_word = suggest_word(misspelled_word)
+print(f"Suggested word: {suggested_word}")
